@@ -1,0 +1,6 @@
+framework module Pods_addplay_test1 {
+  umbrella header "Pods-addplay_test1-umbrella.h"
+
+  export *
+  module * { export * }
+}
