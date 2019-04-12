@@ -10,6 +10,9 @@
 		9C7E7377559CE0655F098651 /* Pods_addplay_test1.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC1A765D205A41323B847FC0 /* Pods_addplay_test1.framework */; };
 		ACF5BE577E8B1D6971D09FBA /* Pods_addplay_test1UITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CEBDA5F64A2E00D2DD5145D /* Pods_addplay_test1UITests.framework */; };
 		CC37B92CC99F8E151EC4CF9F /* Pods_addplay_test1Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D5E134347F840D3DE7328F7 /* Pods_addplay_test1Tests.framework */; };
+		EC8BFDBE225DF36800F73FA7 /* ViewControllerClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BFDBD225DF36800F73FA7 /* ViewControllerClass.swift */; };
+		ECDB9ED3225F941500225570 /* AddressWebVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDB9ED2225F941500225570 /* AddressWebVC.swift */; };
+		ECDB9ED5225F986300225570 /* AddressAddVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDB9ED4225F986300225570 /* AddressAddVC.swift */; };
 		EE185D0820AD5C0700813932 /* Experience_Info_Focus1.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE185D0720AD5C0700813932 /* Experience_Info_Focus1.swift */; };
 		EE39442B20C51D9C00DFACF5 /* Icon-App-29x29@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EE39441520C51D9900DFACF5 /* Icon-App-29x29@2x.png */; };
 		EE39442C20C51D9C00DFACF5 /* Icon-App-29x29@1x.png in Resources */ = {isa = PBXBuildFile; fileRef = EE39441620C51D9900DFACF5 /* Icon-App-29x29@1x.png */; };
@@ -209,6 +212,9 @@
 		D0D51A8BCB26207346EF5D3F /* Pods-addplay_test1UITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-addplay_test1UITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-addplay_test1UITests/Pods-addplay_test1UITests.release.xcconfig"; sourceTree = "<group>"; };
 		D8AB26FB134D5C73D79B2FBF /* Pods-addplay_test1UITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-addplay_test1UITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-addplay_test1UITests/Pods-addplay_test1UITests.debug.xcconfig"; sourceTree = "<group>"; };
 		DC1A765D205A41323B847FC0 /* Pods_addplay_test1.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_addplay_test1.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EC8BFDBD225DF36800F73FA7 /* ViewControllerClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerClass.swift; sourceTree = "<group>"; };
+		ECDB9ED2225F941500225570 /* AddressWebVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressWebVC.swift; sourceTree = "<group>"; };
+		ECDB9ED4225F986300225570 /* AddressAddVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressAddVC.swift; sourceTree = "<group>"; };
 		EE185D0720AD5C0700813932 /* Experience_Info_Focus1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Experience_Info_Focus1.swift; sourceTree = "<group>"; };
 		EE39441520C51D9900DFACF5 /* Icon-App-29x29@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-App-29x29@2x.png"; sourceTree = "<group>"; };
 		EE39441620C51D9900DFACF5 /* Icon-App-29x29@1x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-App-29x29@1x.png"; sourceTree = "<group>"; };
@@ -507,6 +513,7 @@
 				EED2F23720809ACC001B0991 /* LaunchScreen.storyboard */,
 				EED2F23A20809ACC001B0991 /* Info.plist */,
 				EED2F3212099BB6A001B0991 /* Flash.swift */,
+				EC8BFDBD225DF36800F73FA7 /* ViewControllerClass.swift */,
 			);
 			path = addplay_test1;
 			sourceTree = "<group>";
@@ -661,6 +668,8 @@
 				FFD2A2252240C56900FAA5DD /* address_list.swift */,
 				FFD2A2292240D68100FAA5DD /* User_Address_Cell.swift */,
 				FFD2A22B224379AF00FAA5DD /* address_search.swift */,
+				ECDB9ED4225F986300225570 /* AddressAddVC.swift */,
+				ECDB9ED2225F941500225570 /* AddressWebVC.swift */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -1078,6 +1087,7 @@
 				EED2F23120809ACC001B0991 /* ViewController.swift in Sources */,
 				FF19216322379FD9001A2EB2 /* Tab4_List_Cell_User.swift in Sources */,
 				EEBC636420A1737500E4B238 /* Setting.swift in Sources */,
+				ECDB9ED3225F941500225570 /* AddressWebVC.swift in Sources */,
 				FFFCF0702225261200A44B37 /* Tab3_List.swift in Sources */,
 				FFD2A22A2240D68100FAA5DD /* User_Address_Cell.swift in Sources */,
 				EED2F31E2096B3FA001B0991 /* Toast.swift in Sources */,
@@ -1094,8 +1104,10 @@
 				EED2F3222099BB6A001B0991 /* Flash.swift in Sources */,
 				FF734ACC2250B8F300EFD701 /* Tab4_Setting.swift in Sources */,
 				EED2F31A2091B929001B0991 /* Experience_Focus.swift in Sources */,
+				ECDB9ED5225F986300225570 /* AddressAddVC.swift in Sources */,
 				FFD2A22C224379AF00FAA5DD /* address_search.swift in Sources */,
 				FF734AC62250A5D700EFD701 /* Experience_Focus_Options_Cell.swift in Sources */,
+				EC8BFDBE225DF36800F73FA7 /* ViewControllerClass.swift in Sources */,
 				EEBC636620A2D31B00E4B238 /* ChangePass.swift in Sources */,
 				EED2F31520899483001B0991 /* Main_Table_Cell.swift in Sources */,
 				FFDB6AC82237930A00F90707 /* Tab4_List.swift in Sources */,
@@ -1269,11 +1281,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				COMPRESS_PNG_FILES = YES;
+				DEVELOPMENT_TEAM = A4MXBAQM2V;
 				INFOPLIST_FILE = addplay_test1/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "globalband.addplay-test1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = YES;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1285,11 +1299,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				COMPRESS_PNG_FILES = YES;
+				DEVELOPMENT_TEAM = A4MXBAQM2V;
 				INFOPLIST_FILE = addplay_test1/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "globalband.addplay-test1";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = YES;
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

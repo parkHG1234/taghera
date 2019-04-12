@@ -56,11 +56,16 @@ class JoinView: UIViewController, MyProtocol{
         super.viewDidAppear(true)
         //ui_btn_join.layer.backgroundColor = UIColor.gray.cgColor
         //ui_btn_join.isEnabled = false
-        http_code()
+//        http_code()
        
     }
     func setlayoutCerti(){
         ui_layout_certi.isHidden = true
+        
+        keyboardHide(textField: ui_edit_certi)
+        keyboardHide(textField: ui_edit_pass)
+        keyboardHide(textField: ui_edit_passcheck)
+        keyboardHide(textField: ui_txt_phone)
     }
     @IBAction func ui_btn_join(_ sender: Any) {
         http_join()
@@ -166,9 +171,10 @@ class JoinView: UIViewController, MyProtocol{
                     var dict = arrRes[i]
                     self.Array.append(item(pk: dict["msg1"] as! String))
                 }
+                
                 print(self.Array[0].pk)
                 //신규 회원인 경우 문자 인증 전송
-                if self.Array[0].pk == "not existent" {
+                if self.Array[0].pk.contains("not existent") {
                     self.http_phoneSms(phone: phone)
                     self.startTimer();
                     self.ui_layout_certi.isHidden = false
@@ -205,12 +211,12 @@ class JoinView: UIViewController, MyProtocol{
         print(date) // -> 2014/08/25 08:13:18
         
         let parameters = [
-            "Data1": "플레이리뷰 인증번호는 ["+String(rnd)+"] 입니다. 감사합니다.",
+            "Data1": "태그해라 인증번호는 ["+String(rnd)+"] 입니다. 감사합니다.",
             "Data2": phone,
             "Data3": "15662649",
             "Data4": date
         ]
-        Alamofire.request("http://13.124.32.32:8080/InetSMSExample/example.jsp", method: .post, parameters: parameters)
+        Alamofire.request("http://13.209.148.229/InetSMSExample/example.jsp", method: .post, parameters: parameters)
     }
     
     func startTimer() {
@@ -261,7 +267,8 @@ class JoinView: UIViewController, MyProtocol{
         var code = randomString(length: 4)
         print(code)
         var arrRes = [[String:AnyObject]]()
-        Alamofire.request("http://13.209.148.229/Web_Taghera/Recommend_CodeCheck.jsp?Data1="+code).responseJSON{(responseData) -> Void in
+        Alamofire.request("http://13.209.148.229/Web_Taghera/Recommend_CodeCheck.jsp?Data1="+code).responseString{(responseData) -> Void in
+            print(responseData)
             let Data = JSON(responseData.result.value!)
             if let resData = Data["List"].arrayObject{
                 arrRes = resData as! [[String:AnyObject]]
@@ -289,15 +296,17 @@ class JoinView: UIViewController, MyProtocol{
     func http_join(){
         var arrRes1 = [[String:AnyObject]]()
         let parameters = [
-            "Data1": str_phone,
-            "Data2": str_pass,
+            "Data1": ui_txt_phone.text!,
+            "Data2": ui_edit_pass.text!,
             "Data3": "agree",
             "Data4": "agree",
             "Data5": "agree",
             "Data6": "agree",
             "Data7": code_checked,
         ]
-        Alamofire.request("http://13.209.148.229/Web_Taghera/Join_Basic.jsp", method: .post, parameters: parameters).responseJSON{(responseData) -> Void in
+        Alamofire.request("http://13.209.148.229/Web_Blah/Join_Basic.jsp", method: .post, parameters: parameters).responseJSON{(responseData) -> Void in
+            print("aaaaaaa")
+            print(responseData)
             let Data1 = JSON(responseData.result.value!)
             if let resData1 = Data1["List"].arrayObject{
                 arrRes1 = resData1 as! [[String:AnyObject]]

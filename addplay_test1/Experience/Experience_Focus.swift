@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import Alamofire
+import AlamofireImage
 import SwiftyJSON
 import WebKit
 
@@ -17,21 +18,14 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     var Array_user = [model_user]()
     var Array_address = [model_address]()
     let preferences = UserDefaults.standard
-    var user_pk:String = "434"
-    @IBOutlet weak var ui_img: UIImageView!
-    @IBOutlet weak var ui_txt_contents: UILabel!
-    @IBOutlet weak var ui_txt_price: UILabel!
-    @IBOutlet weak var ui_txt_partici: UILabel!
-    @IBOutlet weak var ui_webview: UIWebView!
-    @IBOutlet weak var ui_txt_companyname: UILabel!
-    @IBOutlet weak var ui_layout_inputlayout: UIView!
-    @IBOutlet weak var ui_scroll: UIScrollView!
-    @IBOutlet weak var ui_edit_name: UITextField!
-    @IBOutlet weak var ui_edit_email: UITextField!
-    @IBOutlet weak var ui_edit_phone: UITextField!
-    @IBOutlet weak var ui_edit_channel: UITextField!
-    @IBOutlet weak var ui_txt_address: UILabel!
+    var user_pk:String = ""
+    let dateFormatter = DateFormatter()
+    var countdownTimer: Timer!
+    var currentTime:Int = 0
+    var deadLine:Int = 0
     
+    
+    // 기본화면
     var str_maxCount:String = ""
     var str_particiCount:String = ""
     var str_username:String = ""
@@ -42,111 +36,56 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     var str_address_pk:String = ""
     var str_address_title:String = ""
     
-    var bool_layoutuser:Bool = false
+    @IBOutlet weak var timer: UILabel!
+    @IBOutlet weak var counter: UILabel!
+    @IBOutlet weak var imageview: UIImageView!
+    @IBOutlet weak var product_title: UILabel!
+    @IBOutlet weak var product_intro: UILabel!
+    @IBOutlet weak var webview: UIWebView!
+    @IBOutlet weak var price: UILabel!
+    @IBOutlet weak var requestView: UIView!
+    
+    @IBAction func product_detail(_ sender: UIButton) {
+    }
+    
+    @IBAction func request(_ sender: UIButton) {
+    }
+    @IBAction func requestViewExit(_ sender: Any) {
+        self.requestView.isHidden = true
+    }
+    @IBAction func goToExperience(_ sender: Any) {
+        self.requestView.isHidden = false
+    }
+    
+    // 배송지 설정
+    
+    @IBOutlet weak var deliver_option_tf: UITextField!
+    @IBOutlet weak var deliver_name_tf: UITextField!
+    @IBOutlet weak var deliver_mail_tf: UITextField!
+    
+    @IBOutlet weak var deliver_destination_lb: UILabel!
+    
+    @IBOutlet weak var deliver_phone_tf: UITextField!
+    @IBOutlet weak var deliver_channel_tf: UITextField!
+    
+    var pickOption = ["1", "2", "3", "4", "5"]
+    var pickerView = UIPickerView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        //user_pk = self.preferences.string(forKey: "user_pk")!
+        user_pk = self.preferences.string(forKey: "user_pk")!
         http()
         http_user()
         http_address()
         
-        ui_layout_inputlayout.isHidden = true
-    }
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        pickerView.delegate = self
+        deliver_option_tf.inputView = pickerView
         
-    }
-    func webViewDidFinishLoad(_ webView: UIWebView) {
-        self.webViewResizeToContent(webView: self.ui_webview)
-    }
-    func webViewResizeToContent(webView: UIWebView) {
-        webView.layoutSubviews()
-        
-        // Set to smallest rect value
-        var frame:CGRect = webView.frame
-        frame.size.height = 1.0
-        webView.frame = frame
-        
-        var height:CGFloat = webView.scrollView.contentSize.height
-        
-        ui_webview.frame.size.height = height
-        let heightConstraint = NSLayoutConstraint(item: webView, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: nil, attribute: NSLayoutAttribute.height, multiplier: 1.0, constant: height)
-        webView.addConstraint(heightConstraint)
-        
-        // Set layout flag
-        webView.window?.setNeedsUpdateConstraints()
-        webView.window?.setNeedsLayout()
-    }
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    }
-    
-    @IBAction func ui_btn_input(_ sender: Any) {
-        if(bool_layoutuser ==  false){
-            bool_layoutuser = true
-            self.ui_layout_inputlayout.isHidden = false
-        }
-        else{
-            bool_layoutuser = false
-            
-            if (Int(str_maxCount)! * 3 <= Int(str_particiCount)!){
-                Toast.shared.long(self.view, msg: "체험 신청 3배수 모집이 완료되었어요")
-            }
-            else{
-                
-                if(self.ui_edit_name.text == ""){
-                    Toast.shared.long(self.view, msg: "이름을 입력해주세요.")
-                }
-                else{
-                    if(self.ui_edit_email.text == ""){
-                        Toast.shared.long(self.view, msg: "이메일을 입력해주세요.")
-                    }
-                    else{
-                        if(self.ui_edit_phone.text == ""){
-                            Toast.shared.long(self.view, msg: "연락처를 입력해주세요.")
-                        }
-                        else{
-                            if(self.ui_edit_channel.text == ""){
-                                Toast.shared.long(self.view, msg: "채널을 입력해주세요.")
-                            }
-                            else{
-                                var result : String = " "
-                                let parameters1 = [
-                                    "Data1": user_pk,
-                                    "Data2": GoodsPk
-                                ]
-                                Alamofire.request("http://13.209.148.229/Web_Taghera/Experience_Overlap.jsp", method: .post, parameters: parameters1) .responseString { response in
-                                    print("Success: \(response.result.isSuccess)")
-                                    print("Response String: \(response.result.value)")
-                                    result = response.result.value!
-                                    if result.contains("overlap") {
-                                        Toast.shared.long(self.view, msg: "이미 신청 중입니다.")
-                                    }
-                                    else {
-                                        self.performSegue(withIdentifier: "seg_finish", sender: self)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    @IBAction func ui_btn_Back(_ sender: Any) {
-        self.presentingViewController?.dismiss(animated: true, completion: nil)
-    }
-    @IBAction func ui_btn_inputCancel(_ sender: Any) {
-        ui_layout_inputlayout.isHidden = true
-    }
-    @IBAction func ui_btn_address(_ sender: Any) {
     }
     func http(){
         var arrRes = [[String:AnyObject]]()
         Alamofire.request("http://13.209.148.229/Web_Taghera/Experience_Focus.jsp?Data1="+GoodsPk).responseJSON{(responseData) -> Void in
-            
             let Data = JSON(responseData.result.value!)
-            
-            print(responseData.result.value!)
-
             if let resData = Data["List"].arrayObject{
                 
                 arrRes = resData as! [[String:AnyObject]]
@@ -188,9 +127,8 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
         var arrRes = [[String:AnyObject]]()
         Alamofire.request("http://13.209.148.229/Web_Taghera/User.jsp?Data1="+user_pk).responseJSON{(responseData) -> Void in
             
+            print(responseData)
             let Data = JSON(responseData.result.value!)
-            
-            print(responseData.result.value!)
             
             if let resData = Data["List"].arrayObject{
                 
@@ -212,6 +150,21 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
                 Toast.shared.long(self.view, msg: "잠시 후 다시 시도해주세요")
             }
         }
+    }
+    
+    func setup_user(){
+        // black 등급 일 경우 이용제한
+        str_usergrade = self.Array_user[0].grade
+        
+        str_username = self.Array_user[0].name
+        str_userphone = self.Array_user[0].phone
+        str_useremail = self.Array_user[0].email
+        str_userchannel = self.Array_user[0].channel
+        
+        deliver_name_tf.text = str_username
+        deliver_mail_tf.text = str_useremail
+        deliver_phone_tf.text = str_userphone
+        deliver_channel_tf.text = str_userchannel
     }
     func http_address(){
         var arrRes = [[String:AnyObject]]()
@@ -238,53 +191,91 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
             }
         }
     }
-    func viewsetup(){
-        str_maxCount = self.Array[0].maxcount
-        str_particiCount = self.Array[0].particicount
-        
-        //상품 이미지 셋팅
-        ui_img.sd_setImage(with: URL(string: self.Array[0].video1_img_main))
-        
-        //회사 정보 / 상품 정보 셋팅
-        ui_txt_companyname.text = "["+self.Array[0].brand_name+"] "+self.Array[0].title
-        ui_txt_contents.text = self.Array[0].contents
-        ui_txt_price.text = "￦"+price_set(_price: self.Array[0].price)
-        
-        //참여자수 셋팅
-        ui_txt_partici.text = "참여 " + str_particiCount + " / 선정 " + str_maxCount
-        
-        ui_webview.delegate = self
-        ui_webview.scalesPageToFit = true
-        ui_webview.contentMode = .scaleAspectFit
-        //1. Load web site into my web view
-        let myURL = URL(string: self.Array[0].image)
-        print(self.Array[0].image)
-        let myURLRequest:URLRequest = URLRequest(url: myURL!)
-        ui_webview.loadRequest(myURLRequest)
-
+    
+    func setup_address(){
+        self.str_address_pk = self.Array_address[0].pk
+        self.str_address_title = self.Array_address[0].title
     }
     
-    func setup_user(){
-        str_username = self.Array_user[0].name.removingPercentEncoding!
-        str_userphone = self.Array_user[0].phone.removingPercentEncoding!
-        str_useremail = self.Array_user[0].email.removingPercentEncoding!
-        str_usergrade = self.Array_user[0].grade
-        str_userchannel = self.Array_user[0].channel.removingPercentEncoding!
-        
-        ui_edit_name.text = str_username
-        ui_edit_phone.text = str_userphone
-        ui_edit_email.text = str_useremail
-        ui_edit_channel.text = str_userchannel
-        //ui_txt_contents.text = self.Array[0].contents
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        endTimer()
+    }
+    func startTimer() {
+        countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
+    }
 
-        
+    func endTimer() {
+        countdownTimer.invalidate()
     }
-    func setup_address(){
-        str_address_pk = self.Array_address[0].pk.removingPercentEncoding!
-        str_address_title = self.Array_address[0].title.removingPercentEncoding!
-        
-        ui_txt_address.text = str_address_title
+
+    @objc func updateTime() {
+        timer.text = "\(timeFormatted(deadLine - currentTime))"
+        if deadLine != 0 {
+            deadLine -= 1
+        } else {
+            endTimer()
+        }
     }
+    
+    
+    func timeFormatted(_ totalSeconds: Int) -> String {
+        if(totalSeconds < 0 ){
+            endTimer()
+            return String(format: "%02d:%02d:%02d",0, 0, 0)
+        }
+        let day : Int = totalSeconds / 86400
+        let hours: Int = (totalSeconds % 86400) / 3600
+        let minutes: Int = (totalSeconds % 86400) % 3600 / 60
+        let seconds: Int = ((totalSeconds % 86400) % 3600) % 60
+        if(day<1){
+            return String(format: "%02d:%02d:%02d",hours, minutes, seconds)
+        }else if(day < 1 && hours < 1){
+            return String(format: "%02d:%02d:%02d",0 , minutes, seconds)
+        }else if(day < 1 && hours < 1 && minutes < 1){
+            return String(format: "%02d:%02d:%02d",0 , 0, seconds)
+        }else if(day < 1 && hours < 1 && minutes < 1 && seconds < 1){
+            endTimer()
+            return String(format: "%02d:%02d:%02d",0, 0, 0)
+        }else{
+            return String(format: "%d일%02d:%02d:%02d",day, hours, minutes, seconds)
+        }
+    }
+    
+    
+    func viewsetup(){
+        // 타이머
+        var now = Date()
+        dateFormatter.locale = Locale(identifier: "ko_kr")
+        dateFormatter.dateFormat = "yyyyMMddHHmmss"
+        dateFormatter.timeZone = TimeZone(abbreviation: "KST") // "2018-03-21 18:07:27"
+        let kr = dateFormatter.string(from: now)
+        self.currentTime = Int(kr)!
+        self.deadLine = Int(self.Array[0].deadline)!
+        startTimer()
+        
+        // 이미지
+        self.imageview.af_setImage(withURL: URL(string: self.Array[0].video1_img_main)!)
+
+        // 가격
+        self.price.text = "￦"+price_set(_price: self.Array[0].price)
+        
+        //참여자수 셋팅
+        str_maxCount = self.Array[0].maxcount
+        str_particiCount = self.Array[0].particicount
+        self.counter.text = "참여 " + str_particiCount + " / 선정 " + str_maxCount
+        
+        
+        self.product_title.text = "["+self.Array[0].brand_name+"]"+self.Array[0].title
+        self.product_intro.text = self.Array[0].contents
+        
+        //웹뷰
+        webview.contentMode = .scaleAspectFit
+        let url = URL(string: self.Array[0].purchage_url)
+        let requestObj = URLRequest(url: url! as URL)
+        webview.loadRequest(requestObj)
+    }
+    
     func price_set(_price : String) -> String{
         let numberformatter = NumberFormatter()
         numberformatter.numberStyle = .decimal
@@ -314,6 +305,35 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
         }
     }
 }
+
+
+extension Experience_Focus : UIPickerViewDataSource, UIPickerViewDelegate {
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return self.pickOption.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return self.pickOption[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        self.deliver_option_tf.text = self.pickOption[row]
+        self.view.endEditing(true)
+    }
+
+//    func pickerView(pickerView: UIPickerView!, didSelectRow row: Int, inComponent component: Int)
+//    {
+//           self.deliver_option_tf.text = self.pickOption[row]
+//        self.view.endEditing(true)
+//
+//    }
+//
+    }
 class model_product{
     let pk : String
     let product_pk : String

@@ -19,9 +19,12 @@ extension Tab4_List: UITableViewDataSource {
             // 첫 번째 인자로 등록한 identifier, cell은 as 키워드로 앞서 만든 custom cell class화 해준다.
             let cell = ui_table_list4.dequeueReusableCell(withIdentifier: "Tab4_List_Cell_User", for: indexPath) as! Tab4_List_Cell_User
             // 위 작업을 마치면 커스텀 클래스의 outlet을 사용할 수 있다.
-            cell.label_phone.text = Array_user[indexPath.row].phone
-            cell.label_email.text = Array_user[indexPath.row].email
-            
+//            cell.label_phone.text = Array_user[indexPath.row].phone
+            if(Array_user[indexPath.row].email==""){
+                cell.label_email.text = "이메일이 표시됩니다"
+            }else{
+                cell.label_email.text = Array_user[indexPath.row].email
+            }
            // let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
             //cell.btn_setting.addGestureRecognizer(tap)
             self.ui_table_list4.rowHeight = 280
@@ -143,14 +146,14 @@ extension Tab4_List: UITableViewDelegate{
     
 }
 class Tab4_List: UIViewController {
-    var user_pk:String = "434"
+    var user_pk:String = ""
     let preferences = UserDefaults.standard
     var Array_user = [item_tab4_user]()
     var Array_list = [item_tab4_list]()
     @IBOutlet var ui_table_list4: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        //user_pk = self.preferences.string(forKey: "user_pk")!
+        user_pk = self.preferences.string(forKey: "user_pk")!
         
         setNavigationbarItem()
         ui_table_list4.dataSource = self
@@ -159,7 +162,7 @@ class Tab4_List: UIViewController {
         //self.ui_table_list4.rowHeight = UITableViewAutomaticDimension
         //ui_table_list4.estimatedRowHeight = 300
         http_user()
-        http_list()
+//        http_list()
     }
 
     // MARK: - Table view data source
