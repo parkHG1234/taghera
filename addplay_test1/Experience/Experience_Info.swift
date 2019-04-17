@@ -75,6 +75,9 @@ class Experience_Info: UIViewController {
             
         }
     }
+    
+    
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "segExperienceInfo_Focus"){
             if let indexPath = ui_table.indexPathForSelectedRow{

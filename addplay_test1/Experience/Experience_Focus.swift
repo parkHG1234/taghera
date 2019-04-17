@@ -17,13 +17,15 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     var Array = [model_product]()
     var Array_user = [model_user]()
     var Array_address = [model_address]()
+    var Array_option = [Experience_Options_Model]()
     let preferences = UserDefaults.standard
     var user_pk:String = ""
+    var option_pk:String = ""
     let dateFormatter = DateFormatter()
     var countdownTimer: Timer!
     var currentTime:Int = 0
     var deadLine:Int = 0
-    
+    var address_flag:Bool = false
     
     // 기본화면
     var str_maxCount:String = ""
@@ -35,6 +37,7 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     var str_userchannel:String = ""
     var str_address_pk:String = ""
     var str_address_title:String = ""
+    var str_status:String = ""
     
     @IBOutlet weak var timer: UILabel!
     @IBOutlet weak var counter: UILabel!
@@ -54,9 +57,98 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
         self.requestView.isHidden = true
     }
     @IBAction func goToExperience(_ sender: Any) {
-        self.requestView.isHidden = false
+        if(str_status=="finish"){
+            Toast.shared.long(self.view, msg: "체험 모집이 완료되었어요")
+        }else{
+            if(timer.text! == "00:00:00"){
+                Toast.shared.long(self.view, msg: "신청 기간이 마감되었어요")
+            }else{
+                self.requestView.isHidden = false
+            }
+        }
+    }
+    @IBAction func goToAddress(_ sender: Any) {
+        if(address_flag){
+//            self.performSegue(withIdentifier: "address_list", sender: nil)
+            
+            let vc = storyboard?.instantiateViewController(withIdentifier: "address_list") as? address_list
+            vc?.addressTitleDelegate = self
+            self.navigationController?.pushViewController(vc!, animated: true)
+        }else{
+            let vc = storyboard?.instantiateViewController(withIdentifier: "AddressAddVC") as? AddressAddVC
+            vc?.addressAddDelegate = self
+            self.navigationController?.pushViewController(vc!, animated: true)
+        }
     }
     
+    @IBAction func goToFree(_ sender: Any) {
+        if(str_usergrade=="black"){
+            Toast.shared.long(self.view, msg: "이용이 제한된 회원이에요")
+        }else{
+            if(Int(str_maxCount)! * 3 <= Int(str_particiCount)!){
+                Toast.shared.long(self.view, msg: "체험 신청 3배수 모집이 완료되었어요")
+            }else{
+                
+                if(self.deliver_option_tf.text! == ""){
+                    Toast.shared.long(self.view, msg: "옵션을 선택해주세요")
+                    return
+                }
+                if(self.deliver_name_tf.text == ""){
+                    Toast.shared.long(self.view, msg: "이름을 입력해주세요")
+                    return
+                }
+                if(self.deliver_mail_tf.text == ""){
+                    Toast.shared.long(self.view, msg: "메일을 입력해주세요")
+                    return
+                }
+                if(self.deliver_destination_lb.text == ""){
+                    Toast.shared.long(self.view, msg: "주소지를 입력해주세요")
+                    return
+                }
+                if(self.deliver_phone_tf.text == ""){
+                    Toast.shared.long(self.view, msg: "번호를 입력해주세요")
+                    return
+                }
+                if(self.deliver_channel_tf.text == ""){
+                    Toast.shared.long(self.view, msg: "채널을 입력해주세요")
+                    return
+                }
+                
+                let param = [
+                    "Data1" : self.user_pk,
+                    "Data2" : self.GoodsPk
+                ]
+                Alamofire.request("http://13.209.148.229/Web_Taghera/Experience_Overlap.jsp", method: .post, parameters: param,encoding: URLEncoding.default, headers: nil).responseString{(responseData) -> Void in
+                    if((responseData.result.value?.contains("overlap"))!){
+                        Toast.shared.long(self.view, msg: "이미 신청된 체험이에요")
+                    }else{
+                            let params = [
+                                "Data1" : self.user_pk,
+                                "Data2" : self.deliver_name_tf.text!,
+                                "Data3" : self.deliver_mail_tf.text!,
+                                "Data4" : self.deliver_channel_tf.text!
+                            ]
+                             Alamofire.request("http://13.209.148.229/Web_Taghera/User_Add_MoreInfo.jsp", method: .post, parameters: params,encoding: URLEncoding.default, headers: nil)
+                            let param2 = [
+                                "Data1" : self.GoodsPk,
+                                "Data2" : self.user_pk,
+                                "Data3" : self.str_address_pk,
+                                "Data4" : self.option_pk
+                            ]
+                            Alamofire.request("http://13.209.148.229/Web_Taghera/Experience_Apply.jsp", method: .post, parameters: param2,encoding: URLEncoding.default, headers: nil).responseString{(responseString2) -> Void in
+                                if((responseString2.result.value?.contains("succed"))!){
+                                    self.performSegue(withIdentifier: "segFinish", sender: nil)
+                                }else{
+                                    Toast.shared.long(self.view, msg: "잠시 후 다시 시도해주세요")
+                                }
+                            }
+                        
+                    }
+                }
+                
+            }
+        }
+    }
     // 배송지 설정
     
     @IBOutlet weak var deliver_option_tf: UITextField!
@@ -68,19 +160,23 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     @IBOutlet weak var deliver_phone_tf: UITextField!
     @IBOutlet weak var deliver_channel_tf: UITextField!
     
-    var pickOption = ["1", "2", "3", "4", "5"]
+//    var pickOption = ["1", "2", "3", "4", "5"]
     var pickerView = UIPickerView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         user_pk = self.preferences.string(forKey: "user_pk")!
+        pickerView.delegate = self
         http()
         http_user()
         http_address()
+        http_options()
         
-        pickerView.delegate = self
-        deliver_option_tf.inputView = pickerView
-        
+        keyboardHide(textField: deliver_mail_tf)
+        keyboardHide(textField: deliver_channel_tf)
+        keyboardHide(textField: deliver_name_tf)
+        keyboardHide(textField: deliver_option_tf)
+        keyboardHide(textField: deliver_phone_tf)
     }
     func http(){
         var arrRes = [[String:AnyObject]]()
@@ -93,7 +189,6 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
             if arrRes.count > 0{
                 for i in 0...arrRes.count-1{
                     var dict = arrRes[i]
-                    
                     self.Array.append(model_product(pk: dict["msg1"] as! String,
                                                            product_pk: dict["msg2"] as! String,
                                                            brand_profile: dict["msg3"] as! String,
@@ -126,18 +221,13 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     func http_user(){
         var arrRes = [[String:AnyObject]]()
         Alamofire.request("http://13.209.148.229/Web_Taghera/User.jsp?Data1="+user_pk).responseJSON{(responseData) -> Void in
-            
-            print(responseData)
             let Data = JSON(responseData.result.value!)
-            
             if let resData = Data["List"].arrayObject{
-                
                 arrRes = resData as! [[String:AnyObject]]
             }
             if arrRes.count > 0{
                 for i in 0...arrRes.count-1{
                     var dict = arrRes[i]
-                    
                     self.Array_user.append(model_user(pk: dict["msg1"] as! String,
                                                            name: dict["msg3"] as! String,
                                                            phone: dict["msg4"] as! String,
@@ -154,26 +244,52 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     
     func setup_user(){
         // black 등급 일 경우 이용제한
-        str_usergrade = self.Array_user[0].grade
+        str_usergrade = self.Array_user[0].grade.removingPercentEncoding!
         
-        str_username = self.Array_user[0].name
-        str_userphone = self.Array_user[0].phone
-        str_useremail = self.Array_user[0].email
-        str_userchannel = self.Array_user[0].channel
+        str_username = self.Array_user[0].name.removingPercentEncoding!
+        str_userphone = self.Array_user[0].phone.removingPercentEncoding!
+        str_useremail = self.Array_user[0].email.removingPercentEncoding!
+        str_userchannel = self.Array_user[0].channel.removingPercentEncoding!
         
         deliver_name_tf.text = str_username
         deliver_mail_tf.text = str_useremail
         deliver_phone_tf.text = str_userphone
         deliver_channel_tf.text = str_userchannel
     }
+    
+    func http_options(){
+        var arrRes = [[String:AnyObject]]()
+        Alamofire.request("http://13.209.148.229/Web_Taghera/Experience_GoodOptions.jsp?Data1="+GoodsPk).responseJSON{(responseData) -> Void in
+            print(responseData)
+            let Data = JSON(responseData.result.value!)
+            if let resData = Data["List"].arrayObject{
+                arrRes = resData as! [[String:AnyObject]]
+            }
+            if arrRes.count > 0{
+                for i in 0...arrRes.count-1{
+                    var dict = arrRes[i]
+                    self.Array_option.append(Experience_Options_Model(pk: dict["msg1"] as! String,
+                                                                      goodsPk: dict["msg2"] as! String,
+                                                                      name: dict["msg3"] as! String))
+                }
+                self.setup_options()
+            }else{
+                Toast.shared.long(self.view, msg: "잠시 후 다시 시도해주세요")
+            }
+        }
+    }
+    
+    func setup_options(){
+        deliver_option_tf.inputView = pickerView
+        pickerView.reloadAllComponents()
+    }
+    
+    
     func http_address(){
         var arrRes = [[String:AnyObject]]()
         Alamofire.request("http://13.209.148.229/Web_Taghera/Address_Basic.jsp?Data1="+user_pk).responseJSON{(responseData) -> Void in
             
             let Data = JSON(responseData.result.value!)
-            
-            print(responseData.result.value!)
-            
             if let resData = Data["List"].arrayObject{
                 
                 arrRes = resData as! [[String:AnyObject]]
@@ -193,8 +309,14 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     }
     
     func setup_address(){
+        if (self.Array_address.count>0){
         self.str_address_pk = self.Array_address[0].pk
-        self.str_address_title = self.Array_address[0].title
+        self.str_address_title = self.Array_address[0].title.removingPercentEncoding!
+        self.deliver_destination_lb.text = self.str_address_title
+            address_flag = true
+        }else{
+            address_flag = false
+        }
     }
     
     
@@ -245,7 +367,7 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
     
     func viewsetup(){
         // 타이머
-        var now = Date()
+        let now = Date()
         dateFormatter.locale = Locale(identifier: "ko_kr")
         dateFormatter.dateFormat = "yyyyMMddHHmmss"
         dateFormatter.timeZone = TimeZone(abbreviation: "KST") // "2018-03-21 18:07:27"
@@ -258,7 +380,7 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
         self.imageview.af_setImage(withURL: URL(string: self.Array[0].video1_img_main)!)
 
         // 가격
-        self.price.text = "￦"+price_set(_price: self.Array[0].price)
+        self.price.text = "￦" + price_set(_price: self.Array[0].price.removingPercentEncoding!)
         
         //참여자수 셋팅
         str_maxCount = self.Array[0].maxcount
@@ -274,6 +396,9 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
         let url = URL(string: self.Array[0].purchage_url)
         let requestObj = URLRequest(url: url! as URL)
         webview.loadRequest(requestObj)
+        
+        // Status
+        self.str_status = self.Array[0].status
     }
     
     func price_set(_price : String) -> String{
@@ -293,15 +418,17 @@ class Experience_Focus: UIViewController, UIWebViewDelegate ,UIScrollViewDelegat
             ]
             Alamofire.request("http://13.209.148.229/Web_Taghera/Experience_Ios_Apply.jsp", method: .post, parameters: parameters)
             
-            let param = segue.destination as! Experience_Finish
+            _ = segue.destination as! Experience_Finish
             //param1.GoodsPk = self.Array[0].pk
         }
         else if (segue.identifier == "segInfo"){
             let param1 = segue.destination as! Experience_Info
             param1.GoodsPk = self.Array[0].pk
         }
-        else if (segue.identifier == "segaddress"){
-            let param1 = segue.destination as! address_list
+        else if (segue.identifier == "address_list"){
+            _ = segue.destination as! address_list
+        }else if(segue.identifier == "AddressAddVC"){
+            _ = segue.destination as! AddressAddVC
         }
     }
 }
@@ -314,26 +441,31 @@ extension Experience_Focus : UIPickerViewDataSource, UIPickerViewDelegate {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return self.pickOption.count
+        return self.Array_option.count
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return self.pickOption[row]
+        return self.Array_option[row].name
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        self.deliver_option_tf.text = self.pickOption[row]
+        self.option_pk = self.Array_option[row].pk
+        self.deliver_option_tf.text = self.Array_option[row].name
         self.view.endEditing(true)
     }
-
-//    func pickerView(pickerView: UIPickerView!, didSelectRow row: Int, inComponent component: Int)
-//    {
-//           self.deliver_option_tf.text = self.pickOption[row]
-//        self.view.endEditing(true)
-//
-//    }
-//
     }
+
+
+extension Experience_Focus: addressTitleDelegate, addressAddDelegate{
+    func addressAdd(address: String) {
+        self.deliver_destination_lb.text = address
+    }
+    
+    func address_title(address: String) {
+        self.deliver_destination_lb.text = address
+    }
+    
+}
 class model_product{
     let pk : String
     let product_pk : String
@@ -405,6 +537,17 @@ class model_address{
     init(pk: String, title: String) {
         self.pk = pk
         self.title = title
+    }
+}
+
+class Experience_Options_Model{
+    let pk : String
+    let goodsPk : String
+    let name : String
+    init(pk: String, goodsPk: String, name:String ) {
+        self.pk = pk
+        self.goodsPk = goodsPk
+        self.name = name
     }
 }
 

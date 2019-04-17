@@ -12,6 +12,7 @@ import WebKit
 import CoreLocation
 
 protocol AddressWebVCDelegate {
+    func address_code(str: String)
     func address(str: String)
 }
 
@@ -65,32 +66,33 @@ class AddressWebVC: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScri
         
         if let postCodeData = message.body as? [String: Any]{
             
-            let alertController = UIAlertController(title: nil, message: "상세주소를 입력해주세요", preferredStyle: UIAlertController.Style.alert)
+            self.convertToAddressWith(address_code: postCodeData["zonecode"] as! String, address: postCodeData["addr"] as! String)
             
-            alertController.addTextField { (textField : UITextField!) -> Void in
-                textField.placeholder = "상세주소를 입력해주세요"
-            }
-            let saveAction = UIAlertAction(title: "확인", style: UIAlertAction.Style.default, handler: { alert -> Void in
-                let firstTextField = alertController.textFields![0] as UITextField
-                self.keyboardHide(textField: firstTextField)
-                if firstTextField.text == nil{
-                    self.present(self.commonAlert(message: "다시 입력해주세요"), animated: true, completion: nil)
-                }else if firstTextField.text == ""{
-                    self.present(self.commonAlert(message: "다시 입력해주세요"), animated: true, completion: nil)
-                }else{
-                    self.convertToAddressWith(address: postCodeData["addr"] as! String, address_focus: firstTextField.text!)
-                }
-            })
-            let cancelAction = UIAlertAction(title: "취소", style: UIAlertAction.Style.default, handler: {
-                (action : UIAlertAction!) -> Void in
-                
-                self.navigationController?.popViewController(animated: true)
-            })
-            
-            alertController.addAction(saveAction)
-            alertController.addAction(cancelAction)
-            
-            self.present(alertController, animated: true, completion: nil)
+            //            let alertController = UIAlertController(title: nil, message: "상세주소를 입력해주세요", preferredStyle: UIAlertController.Style.alert)
+            //
+            //            alertController.addTextField { (textField : UITextField!) -> Void in
+            //                textField.placeholder = "상세주소를 입력해주세요"
+            //            }
+            //            let saveAction = UIAlertAction(title: "확인", style: UIAlertAction.Style.default, handler: { alert -> Void in
+            //                let firstTextField = alertController.textFields![0] as UITextField
+            //                self.keyboardHide(textField: firstTextField)
+            //                if firstTextField.text == nil{
+            //                    self.present(self.commonAlert(message: "다시 입력해주세요"), animated: true, completion: nil)
+            //                }else if firstTextField.text == ""{
+            //                    self.present(self.commonAlert(message: "다시 입력해주세요"), animated: true, completion: nil)
+            //                }else{
+            //                }
+            //            })
+            //            let cancelAction = UIAlertAction(title: "취소", style: UIAlertAction.Style.default, handler: {
+            //                (action : UIAlertAction!) -> Void in
+            //
+            //                self.navigationController?.popViewController(animated: true)
+            //            })
+            //
+            //            alertController.addAction(saveAction)
+            //            alertController.addAction(cancelAction)
+            //
+            //            self.present(alertController, animated: true, completion: nil)
             
         }
     }
@@ -98,27 +100,16 @@ class AddressWebVC: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScri
 
 
 extension AddressWebVC: CLLocationManagerDelegate{
-    func convertToAddressWith(address: String, address_focus: String){
+    func convertToAddressWith(address_code: String, address: String){
         let geoCoder = CLGeocoder()
         geoCoder.geocodeAddressString(address, completionHandler: { (placemarks, error) -> Void in
             if error != nil {
                 print(error!)
                 return
             }
-            print(address)
-            print(address_focus)
+            self.AddressWebVCDelegate.address_code(str: address_code)
             self.AddressWebVCDelegate.address(str: address)
             self.navigationController?.popViewController(animated: true)
-//            if placemarks!.count > 0 {
-//                let placemark = placemarks?[0]
-//                let location = placemark?.location
-//                let coordinates = location?.coordinate
-//
-////                let x = Double((coordinates?.latitude)!)
-////                let y = Double((coordinates?.longitude)!)
-//
-//
-//            }
         })
-}
+    }
 }

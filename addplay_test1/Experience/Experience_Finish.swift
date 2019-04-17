@@ -21,7 +21,12 @@ class Experience_Finish: UIViewController {
     }
     
     @IBAction func img_back(_ sender: Any) {
-    self.presentingViewController?.dismiss(animated: true, completion: nil)
+       
+       
+        let storyBoard = self.storyboard!
+        let Like = storyBoard.instantiateViewController(withIdentifier: "TabBarController") as! TabBarController
+        self.present(Like, animated: true, completion: nil)
+//        self.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 }
 
