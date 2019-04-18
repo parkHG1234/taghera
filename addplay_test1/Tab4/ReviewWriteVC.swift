@@ -15,6 +15,8 @@ class ReviewWriteVC: UIViewController {
     var Pk = ""
     var Image = ""
     var selectFocusList = [User_MyActivity_Select_Focus]()
+    var userPk = ""
+    let preferences = UserDefaults.standard
     
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var itemLabel: UILabel!
@@ -24,6 +26,7 @@ class ReviewWriteVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        userPk = self.preferences.string(forKey: "user_pk")!
         initListData()
     }
     
@@ -68,16 +71,25 @@ class ReviewWriteVC: UIViewController {
         keyboardHide(textField: facebookTextField)
         keyboardHide(textField: instargramTextField)
         keyboardHide(textField: naverblogTextField)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
     }
     
 
-    @IBAction func urlGuideButton(_ sender: Any) {
+    @objc func keyboardWillShow(_ sender: Notification) {
+        
+        self.view.frame.origin.y = -150 // Move view 150 points upward
+    }
+    @objc func keyboardWillHide(_ sender: Notification) {
+        self.view.frame.origin.y = 0 // Move view to original position
     }
     
     @IBAction func sendButton(_ sender: Any) {
         var arrRes = [[String:AnyObject]]()
         let param = [
-            "Data1": Pk,
+            "Data1": userPk,
             "Data2": selectFocusList[0].Goods_Pk,
             "Data3": self.facebookTextField.text!,
             "Data4": self.instargramTextField.text!,
@@ -92,7 +104,7 @@ class ReviewWriteVC: UIViewController {
             if result.contains("succed"){
                 let storyBoard = self.storyboard!
                 let Like = storyBoard.instantiateViewController(withIdentifier: "TabBarController") as! TabBarController
-                Like.selectedIndex = 2
+                Like.selectedIndex = 3
                 self.present(Like, animated: true, completion: nil)
             }else{
                 Toast.shared.long(self.view, msg: "잠시 후 다시시도해주세요")

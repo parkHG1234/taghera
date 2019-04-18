@@ -87,16 +87,15 @@ class ViewController: UIViewController , UITextFieldDelegate{
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    @objc func keyboardWillShow(_ sender: Notification) {
+    @objc  func keyboardWillShow(_ sender: Notification) {
         
         self.view.frame.origin.y = -150 // Move view 150 points upward
-        
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
-    @objc func keyboardWillHide(_ sender: Notification) {
+    @objc  func keyboardWillHide(_ sender: Notification) {
         self.view.frame.origin.y = 0 // Move view to original position
     }
 }

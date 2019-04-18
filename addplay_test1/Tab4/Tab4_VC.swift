@@ -36,8 +36,14 @@ class Tab4_VC: UIViewController{
         super.viewDidLoad()
 
         userPk = self.preferences.string(forKey: "user_pk")!
-        
+//
         initUserData()
+//        initRequestData()
+//        initListData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
         initRequestData()
         initListData()
     }
@@ -102,17 +108,19 @@ class Tab4_VC: UIViewController{
                             strSelect: dict["msg3"] as! String,
                             strComplete: dict["msg4"] as! String))
                     }
+                    self.initRequestLayout(request: self.requestArray[0].strRequest, select: self.requestArray[0].strSelect, complete: self.requestArray[0].strComplete)
+                }else{
+                    self.initRequestLayout(request: "0", select: "0", complete: "0")
                 }
-                self.initRequestLayout()
             }else{
-                
+                self.initRequestLayout(request: "0", select: "0", complete: "0")
             }
         }
     }
-    func initRequestLayout(){
-        self.labelRequest.text = requestArray[0].strRequest
-        self.labelSelect.text = requestArray[0].strSelect
-        self.labelComplete.text = requestArray[0].strComplete
+    func initRequestLayout(request:String, select: String, complete: String){
+        self.labelRequest.text = request
+        self.labelSelect.text = select
+        self.labelComplete.text = complete
     }
     
 //    User_MyActivity_Count
@@ -140,6 +148,13 @@ class Tab4_VC: UIViewController{
                     }
                 }
                 self.requestCollectionView.reloadData()
+                
+                self.requestCollectionView.performBatchUpdates(nil, completion: {
+                    (result) in
+                    // ready
+//                    self.refreshFlag = true
+                    self.resizeView()
+                })
             }else{
                 
             }
@@ -147,6 +162,10 @@ class Tab4_VC: UIViewController{
         
     }
 
+    func resizeView(){
+        self.viewHeight.constant = self.requestCollectionView.frame.height + 300
+        self.view.layoutIfNeeded()
+    }
 }
 
 extension Tab4_VC: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -169,7 +188,7 @@ extension Tab4_VC: UICollectionViewDataSource, UICollectionViewDelegate, UIColle
         if(self.ListArray[indexPath.row].status == "wait"){
             cell.Image.addSubview(blurEffectView)
             cell.text.text = "선정 중"
-        }else if(self.ListArray[indexPath.row].status == "succed"){
+        }else if(self.ListArray[indexPath.row].status == "finish"){
             cell.Image.addSubview(blurEffectView)
             cell.text.text = "예약완료"
         }else if(self.ListArray[indexPath.row].status == "review"){

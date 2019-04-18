@@ -28,7 +28,6 @@ extension UIViewController{
     }
     
     
-    
     func commonAlert(message: String) -> UIAlertController{
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alertController.addAction( UIAlertAction(title: "확인", style: .default))
